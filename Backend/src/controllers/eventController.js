@@ -54,3 +54,39 @@ async function uniqueSlug(base, excludeId = null) {
   }
   return slug;
 }
+
+export async function getEvents(req, res) {
+  try {
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 20);
+    const skip  = (page - 1) * limit;
+ 
+    const [total, events] = await Promise.all([
+      prisma.event.count(),
+      prisma.event.findMany({
+        skip,
+        take: limit,
+        orderBy: { startsAt: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          location: true,
+          startsAt: true,
+          endsAt: true,
+          slug: true,
+          _count: { select: { sessions: true, speakers: true } },
+        },
+      }),
+    ]);
+ 
+    res.json({
+      data: events,
+      meta: { total, page, limit, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    console.error('[getEvents]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
