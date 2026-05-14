@@ -1,4 +1,4 @@
-import prisma from '../database/db.js';
+import prisma from '../config/prisma.js';
 
 export async function sessionLive(req, res, next) {
   const { sessionId } = req.params;
@@ -6,7 +6,7 @@ export async function sessionLive(req, res, next) {
     const session = await prisma.session.findUnique({ where: { id: sessionId } });
     if (!session) return res.status(404).json({ error: 'Session non trouvée' });
     const now = new Date();
-    if (now < session.startTime || now > session.endTime) {
+    if (now < session.startsAt || now > session.endsAt) {
       return res.status(403).json({ error: 'Les questions ne sont ouvertes que pendant la session live' });
     }
     req.session = session;
