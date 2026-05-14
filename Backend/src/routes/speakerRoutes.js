@@ -6,26 +6,26 @@ import {
   createSpeaker,
   updateSpeaker,
   deleteSpeaker,
+  getSpeakerSessions,
+  linkSpeakerToSession,
 } from "../controllers/speakerController.js";
 
 const router = Router();
 
-// Lister tous les speakers 
 router.get("/", getAllSpeakers);
 
-// Lire un speaker par slug 
 router.get("/slug/:slug", getSpeakerBySlug);
 
-// Lire un speaker par id 
 router.get("/:id", getSpeakerById);
 
-// Créer un speaker
+router.get("/:id/sessions", getSpeakerSessions);
+
 router.post("/", createSpeaker);
 
-// Mettre à jour un speaker
+router.post("/:id/sessions", linkSpeakerToSession);
+
 router.put("/:id", updateSpeaker);
 
-// Supprimer un speaker
 router.delete("/:id", deleteSpeaker);
 
 export default router;
