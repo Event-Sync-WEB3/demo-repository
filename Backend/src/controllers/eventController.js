@@ -90,3 +90,18 @@ export async function getEvents(req, res) {
   }
 }
 
+export async function getEventBySlug(req, res) {
+  try {
+    const event = await prisma.event.findUnique({
+      where:   { slug: req.params.slug },
+      include: EVENT_INCLUDE,
+    });
+ 
+    if (!event) return res.status(404).json({ error: 'Événement introuvable' });
+ 
+    res.json(event);
+  } catch (err) {
+    console.error('[getEventBySlug]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
