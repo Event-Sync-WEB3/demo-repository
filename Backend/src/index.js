@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 app.use(helmet());
 app.use(morgan('dev'));
-app.use(express.json()); // Très important pour lire le JSON envoyé par le front
+app.use(express.json()); 
 
 // Routes
 app.use('/api/speakers', speakerRoutes);
