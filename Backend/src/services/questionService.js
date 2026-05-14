@@ -1,4 +1,4 @@
-import prisma from '.../database/db.js';
+import prisma from '../config/prisma.js';
 
 export async function getQuestionsBySession(sessionId) {
   return prisma.question.findMany({
