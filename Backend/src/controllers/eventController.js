@@ -131,7 +131,7 @@ export async function createEvent(req, res) {
         startsAt:    start,
         endsAt:      end,
         slug,
-        organizerId: req.organizer.id, // injecté par authMiddleware
+        organizerId: req.organizer.id,
       },
       include: EVENT_INCLUDE,
     });
@@ -142,3 +142,51 @@ export async function createEvent(req, res) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 }
+
+export async function updateEvent(req, res) {
+  try {
+    const existing = await prisma.event.findUnique({
+      where: { slug: req.params.slug },
+    });
+ 
+    if (!existing) return res.status(404).json({ error: 'Événement introuvable' });
+ 
+    if (existing.organizerId !== req.organizer.id) {
+      return res.status(403).json({ error: 'Accès interdit' });
+    }
+ 
+    const { title, description, location, startsAt, endsAt } = req.body;
+    const data = {};
+ 
+    if (title !== undefined) {
+      data.title = title;
+      if (title !== existing.title) {
+        data.slug = await uniqueSlug(slugify(title), existing.id);
+      }
+    }
+    if (description !== undefined) data.description = description;
+    if (location    !== undefined) data.location    = location;
+ 
+    const start = startsAt ? new Date(startsAt) : existing.startsAt;
+    const end   = endsAt   ? new Date(endsAt)   : existing.endsAt;
+ 
+    if (startsAt && isNaN(start.getTime())) return res.status(400).json({ error: 'startsAt invalide' });
+    if (endsAt   && isNaN(end.getTime()))   return res.status(400).json({ error: 'endsAt invalide' });
+    if (end <= start) return res.status(400).json({ error: 'endsAt doit être après startsAt' });
+ 
+    if (startsAt) data.startsAt = start;
+    if (endsAt)   data.endsAt   = end;
+ 
+    const event = await prisma.event.update({
+      where:   { id: existing.id },
+      data,
+      include: EVENT_INCLUDE,
+    });
+ 
+    res.json(event);
+  } catch (err) {
+    console.error('[updateEvent]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
+
