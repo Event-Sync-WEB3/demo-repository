@@ -177,3 +177,45 @@ export const deleteSpeaker = async (req, res) => {
     res.status(500).json({ error: "Unable to delete speaker" });
   }
 };
+
+export const getSpeakerSessions = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const sessions = await prisma.sessionSpeaker.findMany({
+      where: { speakerId: id },
+      include: {
+        session: true,
+      },
+      orderBy: { sortOrder: "asc" },
+    });
+
+    res.status(200).json(sessions);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Unable to fetch speaker sessions" });
+  }
+};
+
+export const linkSpeakerToSession = async (req, res) => {
+  const { id } = req.params;
+  const { sessionId } = req.body;
+
+  if (!sessionId) {
+    return res.status(400).json({ error: "sessionId is required" });
+  }
+
+  try {
+    const link = await prisma.sessionSpeaker.create({
+      data: {
+        speakerId: id,
+        sessionId,
+      },
+    });
+
+    res.status(201).json(link);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Unable to link speaker to session" });
+  }
+};
