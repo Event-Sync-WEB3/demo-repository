@@ -105,3 +105,40 @@ export async function getEventBySlug(req, res) {
     res.status(500).json({ error: 'Erreur serveur' });
   }
 }
+
+export async function createEvent(req, res) {
+  try {
+    const { title, description, location, startsAt, endsAt } = req.body;
+ 
+    if (!title || !startsAt || !endsAt) {
+      return res.status(400).json({ error: 'Champs requis : title, startsAt, endsAt' });
+    }
+ 
+    const start = new Date(startsAt);
+    const end   = new Date(endsAt);
+ 
+    if (isNaN(start.getTime())) return res.status(400).json({ error: 'startsAt invalide' });
+    if (isNaN(end.getTime()))   return res.status(400).json({ error: 'endsAt invalide' });
+    if (end <= start)           return res.status(400).json({ error: 'endsAt doit être après startsAt' });
+ 
+    const slug = await uniqueSlug(slugify(title));
+ 
+    const event = await prisma.event.create({
+      data: {
+        title,
+        description: description ?? null,
+        location:    location    ?? null,
+        startsAt:    start,
+        endsAt:      end,
+        slug,
+        organizerId: req.organizer.id, // injecté par authMiddleware
+      },
+      include: EVENT_INCLUDE,
+    });
+ 
+    res.status(201).json(event);
+  } catch (err) {
+    console.error('[createEvent]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
