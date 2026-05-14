@@ -190,3 +190,23 @@ export async function updateEvent(req, res) {
   }
 }
 
+export async function deleteEvent(req, res) {
+  try {
+    const existing = await prisma.event.findUnique({
+      where: { slug: req.params.slug },
+    });
+ 
+    if (!existing) return res.status(404).json({ error: 'Événement introuvable' });
+ 
+    if (existing.organizerId !== req.organizer.id) {
+      return res.status(403).json({ error: 'Accès interdit' });
+    }
+ 
+    await prisma.event.delete({ where: { id: existing.id } });
+ 
+    res.status(204).send();
+  } catch (err) {
+    console.error('[deleteEvent]', err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+}
