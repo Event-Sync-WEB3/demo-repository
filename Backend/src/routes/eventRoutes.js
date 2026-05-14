@@ -1,21 +1,27 @@
 import { Router } from 'express';
-import { authMiddleware, requireAdmin } from '../middleware/authMiddleware.js';
 import {
-  getEvents,
+  listEvents,
+  getEvent,
   getEventBySlug,
   createEvent,
   updateEvent,
+  patchEvent,
   deleteEvent,
-} from '../controllers/eventController.js';
- 
+  getLiveSessions,
+} from '../controllers/eventsController.js';
+import { getEventSessions } from '../controllers/sessionsController.js'; // ta partie
+
 const router = Router();
- 
-router.get('/',      getEvents);
-router.get('/:slug', getEventBySlug);
- 
-router.post('/', authMiddleware, requireAdmin, createEvent);
- 
-router.put('/:slug',    authMiddleware, updateEvent);
-router.delete('/:slug', authMiddleware, deleteEvent);
- 
+
+router.get('/', listEvents);
+router.get('/:id', getEvent);
+router.get('/slug/:slug', getEventBySlug);
+router.get('/:id/live', getLiveSessions);
+router.get('/:eventId/sessions', getEventSessions); // <-- sessions d'un événement
+
+router.post('/', createEvent);
+router.put('/:id', updateEvent);
+router.patch('/:id', patchEvent);
+router.delete('/:id', deleteEvent);
+
 export default router;
