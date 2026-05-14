@@ -3,6 +3,8 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import prisma from "./config/prisma.js";
+import speakerRoutes from "./routes/speakerRoutes.js";
+import eventsRoutes from "./routes/eventRoutes.js";
 
 const app = express();
 
@@ -13,11 +15,8 @@ app.use(morgan("dev"));
 app.use(express.json());
 
 // Routes
-import speakerRoutes from "./routes/speakerRoutes.js";
 app.use("/api/speakers", speakerRoutes);
+app.use("/api/events", eventsRoutes);
 
-// Exporter seulement l'app, pas prisma depuis export default
 export default app;
-
-// Si tu veux pouvoir utiliser prisma dans les contrôleurs, tu peux aussi l’exporter
 export { prisma };
