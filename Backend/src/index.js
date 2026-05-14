@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import speakerRoutes from './routes/speakerRoutes.js';
 import eventsRoutes from './routes/eventRoutes.js';
+import questionsRouter from './src/routes/questions.js';
  
 const app = express();
  
@@ -17,5 +18,6 @@ app.use(express.json());
 // ─── Routes ───────────────────────────────────────────────────────────────────
 app.use('/api/speakers', speakerRoutes);
 app.use('/api/events',   eventRoutes);
+app.use('/api/sessions/:sessionId/questions', questionsRouter);
  
 export default app;
