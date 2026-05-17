@@ -1,6 +1,14 @@
 'use client';
 
+import Link from 'next/link';
 import { useTheme } from '@/context/ThemeContext';
+
+const navLinks = [
+  { label: 'Planning', href: '/' },
+  { label: 'Speakers', href: '/speakers' },
+  { label: 'Q&A', href: '/#qa' },
+  { label: 'Favoris', href: '/#favoris' },
+];
 
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
@@ -8,9 +16,9 @@ export default function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white dark:bg-[#131318] border-b border-black/10 dark:border-white/10 px-6">
       <div className="flex items-center justify-between h-[52px]">
-        
+
         {/* Logo */}
-        <div className="flex items-center gap-2 text-[#1D9E75] dark:text-[#7c6ff7] font-semibold text-base">
+        <Link href="/" className="flex items-center gap-2 text-[#1D9E75] dark:text-[#7c6ff7] font-semibold text-base">
           <div className="w-7 h-7 rounded-lg bg-[#1D9E75] dark:bg-[#7c6ff7] flex items-center justify-center">
             <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24">
               <rect x="3" y="4" width="18" height="18" rx="2"/>
@@ -20,17 +28,18 @@ export default function Navbar() {
             </svg>
           </div>
           EventSync
-        </div>
+        </Link>
 
         {/* Nav links */}
         <div className="flex gap-1">
-          {['Planning', 'Speakers', 'Q&A', 'Favoris'].map((item) => (
-            <button
-              key={item}
+          {navLinks.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
               className="px-3 py-1.5 rounded-full text-xs text-[#6870a0] hover:text-[#1a1c28] dark:hover:text-[#f2f2f8] hover:bg-[#e8eaf2] dark:hover:bg-[#1c1c24] transition-all"
             >
-              {item}
-            </button>
+              {item.label}
+            </Link>
           ))}
         </div>
 
