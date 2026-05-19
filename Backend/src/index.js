@@ -6,7 +6,7 @@ import prisma from "./config/prisma.js";
 import speakerRoutes from "./routes/speakerRoutes.js";
 import eventsRoutes from "./routes/eventRoutes.js";
 import questionsRouter from "./routes/questions.js";
-import sessionsRouter from './routes/sessions.js';
+
 const app = express();
 
 // Middlewares
@@ -19,7 +19,6 @@ app.use(express.json());
 app.use("/api/speakers", speakerRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/sessions/:sessionId/questions", questionsRouter);
-app.use('/api/sessions', sessionsRouter);
-app.use('/api/rooms', roomsRouter);
+
 export default app;
 export { prisma };
