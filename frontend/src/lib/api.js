@@ -1,6 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-// Events 
+// ─── Events ───────────────────────────────────────────────────────────────────
+
 export async function getEvents() {
   const res = await fetch(`${API_URL}/api/events`);
   if (!res.ok) throw new Error('Erreur lors de la récupération des événements');
@@ -13,7 +14,41 @@ export async function getEventBySlug(slug) {
   return res.json();
 }
 
-// Speakers 
+const FAVORITES_KEY = 'eventsync_favorites';
+
+export function getFavorites() {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function addFavorite(slug) {
+  const favorites = getFavorites();
+  if (favorites.includes(slug)) return favorites;
+  const updated = [...favorites, slug];
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export function removeFavorite(slug) {
+  const updated = getFavorites().filter((s) => s !== slug);
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export function toggleFavorite(slug) {
+  const isFavorite = getFavorites().includes(slug);
+  const favorites = isFavorite ? removeFavorite(slug) : addFavorite(slug);
+  return { favorites, isFavorite: !isFavorite };
+}
+
+export function isFavorite(slug) {
+  return getFavorites().includes(slug);
+}
+
 export async function getSpeakers(eventId) {
   const url = eventId
     ? `${API_URL}/api/speakers?eventId=${eventId}`
@@ -35,7 +70,6 @@ export async function getSpeakerSessions(id) {
   return res.json();
 }
 
-// Sessions 
 export async function getSessions(eventId) {
   const url = eventId
     ? `${API_URL}/api/sessions?eventId=${eventId}`
@@ -45,7 +79,6 @@ export async function getSessions(eventId) {
   return res.json();
 }
 
-// Questions
 export async function getQuestions(sessionId) {
   const res = await fetch(`${API_URL}/api/sessions/${sessionId}/questions`);
   if (!res.ok) throw new Error('Erreur lors de la récupération des questions');
