@@ -8,10 +8,8 @@ import {
   deleteEvent,
 } from '../controllers/eventController.js';
  
-import { getEventSessions } from '../controllers/sessionsController.js';
 const router = Router();
-
-router.get('/:eventId/sessions', getEventSessions);
+ 
 router.get('/',      getEvents);
 router.get('/:slug', getEventBySlug);
  
