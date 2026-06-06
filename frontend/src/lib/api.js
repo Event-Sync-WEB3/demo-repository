@@ -1,6 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
-
-// ─── Events ───────────────────────────────────────────────────────────────────
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 export async function getEvents() {
   const res = await fetch(`${API_URL}/api/events`);
@@ -12,41 +10,6 @@ export async function getEventBySlug(slug) {
   const res = await fetch(`${API_URL}/api/events/${slug}`);
   if (!res.ok) throw new Error('Événement introuvable');
   return res.json();
-}
-
-const FAVORITES_KEY = 'eventsync_favorites';
-
-export function getFavorites() {
-  if (typeof window === 'undefined') return [];
-  try {
-    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
-  } catch {
-    return [];
-  }
-}
-
-export function addFavorite(slug) {
-  const favorites = getFavorites();
-  if (favorites.includes(slug)) return favorites;
-  const updated = [...favorites, slug];
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
-  return updated;
-}
-
-export function removeFavorite(slug) {
-  const updated = getFavorites().filter((s) => s !== slug);
-  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
-  return updated;
-}
-
-export function toggleFavorite(slug) {
-  const isFavorite = getFavorites().includes(slug);
-  const favorites = isFavorite ? removeFavorite(slug) : addFavorite(slug);
-  return { favorites, isFavorite: !isFavorite };
-}
-
-export function isFavorite(slug) {
-  return getFavorites().includes(slug);
 }
 
 export async function getSpeakers(eventId) {
@@ -71,11 +34,14 @@ export async function getSpeakerSessions(id) {
 }
 
 export async function getSessions(eventId) {
-  const url = eventId
-    ? `${API_URL}/api/sessions?eventId=${eventId}`
-    : `${API_URL}/api/sessions`;
-  const res = await fetch(url);
+  const res = await fetch(`${API_URL}/api/sessions/events/${eventId}/sessions`);
   if (!res.ok) throw new Error('Erreur lors de la récupération des sessions');
+  return res.json();
+}
+
+export async function getSessionById(id) {
+  const res = await fetch(`${API_URL}/api/sessions/${id}`);
+  if (!res.ok) throw new Error('Session introuvable');
   return res.json();
 }
 
@@ -102,4 +68,40 @@ export async function upvoteQuestion(sessionId, questionId) {
   );
   if (!res.ok) throw new Error('Erreur lors du upvote');
   return res.json();
+}
+
+// ─── Favoris (localStorage) ───────────────────────────────────────────────────
+const FAVORITES_KEY = 'eventsync_favorites';
+
+export function getFavorites() {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+  } catch {
+    return [];
+  }
+}
+
+export function addFavorite(slug) {
+  const favorites = getFavorites();
+  if (favorites.includes(slug)) return favorites;
+  const updated = [...favorites, slug];
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export function removeFavorite(slug) {
+  const updated = getFavorites().filter((s) => s !== slug);
+  localStorage.setItem(FAVORITES_KEY, JSON.stringify(updated));
+  return updated;
+}
+
+export function toggleFavorite(slug) {
+  const isFav = getFavorites().includes(slug);
+  const favorites = isFav ? removeFavorite(slug) : addFavorite(slug);
+  return { favorites, isFavorite: !isFav };
+}
+
+export function isFavorite(slug) {
+  return getFavorites().includes(slug);
 }
