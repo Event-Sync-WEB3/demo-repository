@@ -2,7 +2,6 @@ import prisma from '../config/prisma.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { sessionSelect, formatSession } from '../utils/sessionHelpers.js';
 
-// GET /events/:eventId/sessions(?room=...)
 export const getEventSessions = async (req, res, next) => {
   const { eventId } = req.params;
   const { room: roomId } = req.query;
@@ -23,7 +22,6 @@ export const getEventSessions = async (req, res, next) => {
   }
 };
 
-// GET /sessions/:id
 export const getSessionById = async (req, res, next) => {
   const { id } = req.params;
 
@@ -48,7 +46,6 @@ export const getSessionById = async (req, res, next) => {
   }
 };
 
-// GET /sessions/:sessionId/questions
 export const getSessionQuestions = async (req, res, next) => {
   const { sessionId } = req.params;
 
