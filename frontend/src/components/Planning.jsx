@@ -1,15 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getEvents, getSessions } from '@/lib/api';
-
-const rooms = ['Tout'];
+import { getEvents, getSessions, getFavorites, toggleFavorite } from '@/lib/api';
 
 export default function Planning() {
   const [sessions, setSessions] = useState([]);
   const [activeRoom, setActiveRoom] = useState('Tout');
   const [roomList, setRoomList] = useState(['Tout']);
   const [loading, setLoading] = useState(true);
+  const [favs, setFavs] = useState([]);
+
+  useEffect(() => {
+    setFavs(getFavorites());
+  }, []);
 
   useEffect(() => {
     async function load() {
@@ -33,6 +36,11 @@ export default function Planning() {
     }
     load();
   }, []);
+
+  const handleFav = (sessionId) => {
+    const { favorites } = toggleFavorite(sessionId);
+    setFavs(favorites);
+  };
 
   const visibleSessions = activeRoom === 'Tout'
     ? sessions
@@ -115,8 +123,15 @@ export default function Planning() {
                         Live
                       </span>
                     ) : (
-                      <button className="text-[#c0c4dc] dark:text-[#40405a] hover:text-[#D85A30] transition-colors text-sm">
-                        ♡
+                      <button
+                        onClick={() => handleFav(s.id)}
+                        className={`transition-colors text-sm ${
+                          favs.includes(s.id)
+                            ? 'text-[#D85A30] dark:text-[#f07060]'
+                            : 'text-[#c0c4dc] dark:text-[#40405a] hover:text-[#D85A30]'
+                        }`}
+                      >
+                        {favs.includes(s.id) ? '♥' : '♡'}
                       </button>
                     )}
                   </div>
