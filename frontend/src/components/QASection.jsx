@@ -71,7 +71,6 @@ export default function QASection({ session }) {
         )}
       </div>
 
-      {/* Form — visible uniquement si live */}
       {live && (
         <div className="mb-4 flex flex-col gap-2">
           <div className="flex gap-2">
