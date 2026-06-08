@@ -33,7 +33,3 @@ VALUES (
 );
 
 
-UPDATE "Event" 
-SET "startsAt" = '2026-06-07T08:00:00.000Z',
-    "endsAt" = '2026-06-07T23:59:00.000Z'
-WHERE slug = 'eventsync-2026';

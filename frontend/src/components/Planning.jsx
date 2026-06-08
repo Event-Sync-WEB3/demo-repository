@@ -1,63 +1,41 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { getEvents, getSessions, getFavorites, toggleFavorite } from '@/lib/api';
+import { useState } from 'react';
+
+const sessions = {
+  'Salle A': [
+    { title: 'Intro Node.js & Express', speaker: 'Thomas', type: 'live' },
+    { title: 'API REST avec Prisma', speaker: 'Cassy', type: 'violet' },
+    { title: 'PostgreSQL avancé', speaker: 'Bradon', type: 'default' },
+  ],
+  'Salle B': [
+    { title: 'UI/UX moderne 2026', speaker: 'Cassy', type: 'green' },
+    { title: 'Git & collaboration', speaker: 'Thomas', type: 'default' },
+    { title: 'Deploy & DevOps', speaker: 'Bradon', type: 'green' },
+  ],
+  'Salle C': [
+    { title: 'React & state management', speaker: 'Rahaga', type: 'default' },
+    { title: 'TypeScript avancé', speaker: 'Thomas', type: 'violet' },
+    { title: 'Q&A interactif speakers', speaker: 'Rahaga', type: 'live' },
+  ],
+};
+
+const times = ['09h', '10h', '11h'];
+const rooms = ['Tout', 'Salle A', 'Salle B', 'Salle C'];
+
+const borderColor = {
+  live:    'border-l-2 border-l-[#D85A30] dark:border-l-[#f07060]',
+  violet:  'border-l-2 border-l-[#7c6ff7]',
+  green:   'border-l-2 border-l-[#1D9E75] dark:border-l-[#5bc8a8]',
+  default: '',
+};
 
 export default function Planning() {
-  const [sessions, setSessions] = useState([]);
   const [activeRoom, setActiveRoom] = useState('Tout');
-  const [roomList, setRoomList] = useState(['Tout']);
-  const [loading, setLoading] = useState(true);
-  const [favs, setFavs] = useState([]);
 
-  useEffect(() => {
-    setFavs(getFavorites());
-  }, []);
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const eventsData = await getEvents();
-        const events = eventsData.data || eventsData;
-        if (!events.length) return;
-
-        const eventId = events[0].id;
-        const sessionsData = await getSessions(eventId);
-        const sess = sessionsData.data || sessionsData;
-        setSessions(sess);
-
-        const uniqueRooms = [...new Set(sess.map(s => s.room?.name).filter(Boolean))];
-        setRoomList(['Tout', ...uniqueRooms]);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, []);
-
-  const handleFav = (sessionId) => {
-    const { favorites } = toggleFavorite(sessionId);
-    setFavs(favorites);
-  };
-
-  const visibleSessions = activeRoom === 'Tout'
-    ? sessions
-    : sessions.filter(s => s.room?.name === activeRoom);
-
-  const sessionsByRoom = visibleSessions.reduce((acc, s) => {
-    const roomName = s.room?.name || 'Sans salle';
-    if (!acc[roomName]) acc[roomName] = [];
-    acc[roomName].push(s);
-    return acc;
-  }, {});
-
-  const roomNames = Object.keys(sessionsByRoom);
-
-  if (loading) return (
-    <div className="px-6 py-5 text-xs text-[#6870a0]">Chargement du planning...</div>
-  );
+  const visibleRooms = activeRoom === 'Tout'
+    ? Object.keys(sessions)
+    : [activeRoom];
 
   return (
     <div className="px-6 py-5 bg-[#f2f4f8] dark:bg-[#0f0f13]">
@@ -68,7 +46,7 @@ export default function Planning() {
           Planning multi-track
         </h2>
         <div className="flex gap-1">
-          {roomList.map((r) => (
+          {rooms.map((r) => (
             <button
               key={r}
               onClick={() => setActiveRoom(r)}
@@ -84,63 +62,51 @@ export default function Planning() {
         </div>
       </div>
 
-      {/* Sessions */}
-      {sessions.length === 0 ? (
-        <p className="text-xs text-[#6870a0]">Aucune session disponible.</p>
-      ) : (
-        <div
-          className="grid gap-3"
-          style={{ gridTemplateColumns: `repeat(${Math.max(roomNames.length, 1)}, 1fr)` }}
-        >
-          {roomNames.map((room) => (
-            <div key={room}>
-              <div className="text-[10px] font-medium text-[#6870a0] px-2 py-1 bg-[#e8eaf2] dark:bg-[#1c1c24] rounded-md text-center mb-2">
-                {room}
-              </div>
-              {sessionsByRoom[room].map((s) => (
-                <div
-                  key={s.id}
-                  className={`bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-[10px] p-3 mb-2 cursor-pointer hover:border-[#7c6ff7] hover:-translate-y-px transition-all ${
-                    s.isLive ? 'border-l-2 border-l-[#D85A30] dark:border-l-[#f07060] rounded-l-none' : ''
-                  }`}
-                >
-                  <div className="text-[11px] font-medium text-[#1a1c28] dark:text-[#f2f2f8] mb-2 leading-snug">
-                    {s.title}
-                  </div>
-                  <div className="text-[10px] text-[#6870a0] mb-2">
-                    {new Date(s.startsAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                    {' — '}
-                    {new Date(s.endsAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex gap-1 flex-wrap">
-                      {s.speakers?.map((sp) => (
-                        <span key={sp.id} className="text-[10px] text-[#6870a0]">{sp.fullName}</span>
-                      ))}
-                    </div>
-                    {s.isLive ? (
-                      <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#f0706018] text-[#D85A30] dark:text-[#f07060]">
-                        Live
-                      </span>
-                    ) : (
-                      <button
-                        onClick={() => handleFav(s.id)}
-                        className={`transition-colors text-sm ${
-                          favs.includes(s.id)
-                            ? 'text-[#D85A30] dark:text-[#f07060]'
-                            : 'text-[#c0c4dc] dark:text-[#40405a] hover:text-[#D85A30]'
-                        }`}
-                      >
-                        {favs.includes(s.id) ? '♥' : '♡'}
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+      {/* Grid */}
+      <div className="grid gap-1.5" style={{ gridTemplateColumns: `44px repeat(${visibleRooms.length}, 1fr)` }}>
+        
+        {/* Time column */}
+        <div className="pt-8 flex flex-col gap-1.5">
+          {times.map((t) => (
+            <div key={t} className="text-[10px] text-[#c0c4dc] dark:text-[#40405a] h-[90px] flex items-start">
+              {t}
             </div>
           ))}
         </div>
-      )}
+
+        {/* Room columns */}
+        {visibleRooms.map((room) => (
+          <div key={room}>
+            <div className="text-[10px] font-medium text-[#6870a0] px-2 py-1 bg-[#e8eaf2] dark:bg-[#1c1c24] rounded-md text-center mb-1.5">
+              {room}
+            </div>
+            {sessions[room].map((s, i) => (
+              <div
+                key={i}
+                className={`bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-[10px] p-3 h-[90px] flex flex-col justify-between cursor-pointer mb-1.5 hover:border-[#7c6ff7] hover:-translate-y-px transition-all ${
+                  s.type !== 'default' ? `rounded-l-none ${borderColor[s.type]}` : ''
+                }`}
+              >
+                <div className="text-[11px] font-medium leading-snug text-[#1a1c28] dark:text-[#f2f2f8]">
+                  {s.title}
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] text-[#6870a0]">{s.speaker}</span>
+                  {s.type === 'live' ? (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-[#f0706018] text-[#D85A30] dark:text-[#f07060]">
+                      Live
+                    </span>
+                  ) : (
+                    <button className="text-[#c0c4dc] dark:text-[#40405a] hover:text-[#D85A30] transition-colors text-sm">
+                      ♡
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

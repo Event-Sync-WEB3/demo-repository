@@ -3,7 +3,7 @@ import {
   getEventSessions,
   getSessionById,
   getSessionQuestions,
-} from '../controllers/sessionsController.js';
+} from '../controllers/sessionController.js';
 
 const router = Router();
 
