@@ -7,7 +7,7 @@ import speakerRoutes from "./routes/speakerRoutes.js";
 import eventsRoutes from "./routes/eventRoutes.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import questionsRouter from "./routes/questions.js";
-import roomRouter from "./routes/roomRouter.js";
+import roomRouter from "./routes/roomRoutes.js";
 
 const app = express();
 
