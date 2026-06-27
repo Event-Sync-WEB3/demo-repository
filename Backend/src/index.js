@@ -24,7 +24,7 @@ app.use("/api/speakers", speakerRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/sessions/:sessionId/questions", questionsRouter);
-app.use("/api/rooms", roomRouter);
+app.use("/api/rooms", roomRoutes);
 
 export default app;
 export { prisma };
