@@ -6,8 +6,8 @@ import { useTheme } from '@/context/ThemeContext';
 const navLinks = [
   { label: 'Planning', href: '/' },
   { label: 'Speakers', href: '/speakers' },
-  { label: 'Q&A', href: '/#qa' },
-  { label: 'Favoris', href: '/#favoris' },
+  { label: 'Q&A', href: '/qa' },
+  { label: 'Favoris', href: '/favoris' },
 ];
 
 export default function Navbar() {
