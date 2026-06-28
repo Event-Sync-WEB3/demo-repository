@@ -14,19 +14,20 @@ export default function QASection({ session }) {
     return now >= new Date(session.startsAt) && now <= new Date(session.endsAt);
   };
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const q = await getQuestions(session.id);
-        setQuestions(q);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+ useEffect(() => {
+  async function load() {
+    try {
+      const res = await getQuestions(session.id);
+      const q = res.data || res;
+      setQuestions(Array.isArray(q) ? q : []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, [session.id]);
+  }
+  load();
+}, [session.id]);
 
   const handleSubmit = async () => {
     if (!content.trim()) return;

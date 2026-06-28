@@ -8,6 +8,7 @@ import eventsRoutes from "./routes/eventRoutes.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import questionsRouter from "./routes/questions.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
 app.use("/api/speakers", speakerRoutes);
 app.use("/api/events", eventsRoutes);
 app.use("/api/sessions", sessionRoutes);
