@@ -1,17 +1,22 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { getFavorites, removeFavorite } from '@/lib/api';
 
-const initial = [
-  { time: '09h00', title: 'Intro Node.js & Express', room: 'Salle A', speaker: 'Thomas' },
-  { time: '10h00', title: 'API REST avec Prisma', room: 'Salle A', speaker: 'Cassy' },
-  { time: '11h00', title: 'Q&A interactif speakers', room: 'Salle C', speaker: 'Rahaga' },
-];
+export default function Favorites({ sessions = [] }) {
+  const [favIds, setFavIds] = useState([]);
 
-export default function Favorites() {
-  const [favs, setFavs] = useState(initial);
+  useEffect(() => {
+    setFavIds(getFavorites());
+  }, []);
 
-  const remove = (index) => setFavs(favs.filter((_, i) => i !== index));
+  const favSessions = sessions.filter(s => favIds.includes(s.id));
+
+  const handleRemove = (id) => {
+    removeFavorite(id);
+    setFavIds(getFavorites());
+  };
 
   return (
     <div className="px-6 py-5 bg-[#f2f4f8] dark:bg-[#0f0f13] border-t border-black/10 dark:border-white/10">
@@ -19,30 +24,34 @@ export default function Favorites() {
         Mon itinéraire personnel
       </p>
       <div className="flex flex-col gap-1.5">
-        {favs.length === 0 && (
+        {favSessions.length === 0 && (
           <p className="text-xs text-[#6870a0] py-4 text-center">
             Aucun favori pour l'instant — cliquez sur ♡ dans le planning !
           </p>
         )}
-        {favs.map((f, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-xl transition-colors"
-          >
-            <div className="text-[11px] text-[#1D9E75] dark:text-[#7c6ff7] font-medium min-w-[42px]">
-              {f.time}
+        {favSessions.map((s) => (
+          <Link href={`/sessions/${s.id}`} key={s.id}>
+            <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-xl transition-colors hover:border-[#7c6ff7]">
+              <div className="text-[11px] text-[#1D9E75] dark:text-[#7c6ff7] font-medium min-w-[42px]">
+                {new Date(s.startsAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-medium text-[#1a1c28] dark:text-[#f2f2f8]">{s.title}</div>
+                <div className="text-[11px] text-[#6870a0] mt-0.5">
+                  {s.room?.name} · {s.speakers?.map(sp => sp.fullName).join(', ')}
+                </div>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleRemove(s.id);
+                }}
+                className="text-[#D85A30] dark:text-[#f07060] text-base hover:scale-110 transition-transform"
+              >
+                ♥
+              </button>
             </div>
-            <div className="flex-1">
-              <div className="text-xs font-medium text-[#1a1c28] dark:text-[#f2f2f8]">{f.title}</div>
-              <div className="text-[11px] text-[#6870a0] mt-0.5">{f.room} · {f.speaker}</div>
-            </div>
-            <button
-              onClick={() => remove(i)}
-              className="text-[#D85A30] dark:text-[#f07060] text-base hover:scale-110 transition-transform"
-            >
-              ♥
-            </button>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
