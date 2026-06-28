@@ -103,3 +103,9 @@ export async function upvoteQuestion(sessionId, questionId) {
   if (!res.ok) throw new Error('Erreur lors du upvote');
   return res.json();
 }
+
+export async function getSessionById(id) {
+  const res = await fetch(`${API_URL}/api/sessions/${id}`);
+  if (!res.ok) throw new Error('Session introuvable');
+  return res.json();
+}
