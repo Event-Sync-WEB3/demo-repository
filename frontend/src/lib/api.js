@@ -49,6 +49,15 @@ export function isFavorite(slug) {
   return getFavorites().includes(slug);
 }
 
+export async function getRooms(eventId) {
+  const url = eventId
+    ? `${API_URL}/api/rooms?eventId=${eventId}`
+    : `${API_URL}/api/rooms`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Erreur lors de la récupération des salles');
+  return res.json();
+}
+
 export async function getSpeakers(eventId) {
   const url = eventId
     ? `${API_URL}/api/speakers?eventId=${eventId}`

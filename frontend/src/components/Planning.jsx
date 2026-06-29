@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { getEvents, getSessions, getFavorites, toggleFavorite } from '@/lib/api';
+import { getFavorites, toggleFavorite } from '@/lib/api';
 
 const formatTime = (iso) =>
   new Date(iso).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -56,10 +56,8 @@ function SpeakerStack({ speakers }) {
   );
 }
 
-export default function Planning() {
+export default function Planning({ allEvents = [], selectedEventId, cachedSessions = {}, onSelectEvent }) {
   const router = useRouter();
-  const [allEvents, setAllEvents] = useState([]);
-  const [selectedEventId, setSelectedEventId] = useState(null);
   const [sessionsByRoom, setSessionsByRoom] = useState({});
   const [rooms, setRooms] = useState(['Tout']);
   const [activeRoom, setActiveRoom] = useState('Tout');
@@ -69,59 +67,30 @@ export default function Planning() {
 
   useEffect(() => { setFavorites(getFavorites()); }, []);
 
-  // Charge les événements une seule fois
+  // Met à jour l'affichage depuis le cache quand l'événement sélectionné change
   useEffect(() => {
-    getEvents()
-      .then((data) => {
-        const events = Array.isArray(data) ? data : (data.data || []);
-        setAllEvents(events);
-        if (!events.length) return;
-        // Priorité : event en cours → prochain à venir → plus récent passé
-        const now = new Date();
-        const best =
-          events.find(e => new Date(e.startsAt) <= now && new Date(e.endsAt) >= now) ||
-          events.find(e => new Date(e.startsAt) > now) ||
-          events[events.length - 1] ||
-          events[0];
-        setSelectedEventId(best.id);
-      })
-      .catch(console.error);
-  }, []);
-
-  // Recharge les sessions à chaque changement d'événement sélectionné
-  useEffect(() => {
-    if (!selectedEventId) return;
+    if (!selectedEventId || !cachedSessions[selectedEventId]) return;
     setLoading(true);
-    async function load() {
-      try {
-        const sessionsRaw = await getSessions(selectedEventId);
-        const allSessions = Array.isArray(sessionsRaw) ? sessionsRaw : (sessionsRaw.data || []);
+    const allSessions = cachedSessions[selectedEventId];
 
-        const byRoom = {};
-        allSessions.forEach((s) => {
-          const roomName = s.room?.name || 'Sans salle';
-          if (!byRoom[roomName]) byRoom[roomName] = [];
-          byRoom[roomName].push(s);
-        });
-        Object.values(byRoom).forEach((arr) =>
-          arr.sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt))
-        );
+    const byRoom = {};
+    allSessions.forEach((s) => {
+      const roomName = s.room?.name || 'Sans salle';
+      if (!byRoom[roomName]) byRoom[roomName] = [];
+      byRoom[roomName].push(s);
+    });
+    Object.values(byRoom).forEach((arr) =>
+      arr.sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt))
+    );
+    const slots = [...new Set(allSessions.map((s) => s.startsAt))].sort(
+      (a, b) => new Date(a) - new Date(b)
+    );
 
-        const slots = [...new Set(allSessions.map((s) => s.startsAt))].sort(
-          (a, b) => new Date(a) - new Date(b)
-        );
-
-        setSessionsByRoom(byRoom);
-        setRooms(['Tout', ...Object.keys(byRoom).sort()]);
-        setTimeSlots(slots);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    load();
-  }, [selectedEventId]);
+    setSessionsByRoom(byRoom);
+    setRooms(['Tout', ...Object.keys(byRoom).sort()]);
+    setTimeSlots(slots);
+    setLoading(false);
+  }, [selectedEventId, cachedSessions]);
 
   const handleFavorite = (e, sessionId) => {
     e.stopPropagation();
@@ -130,7 +99,7 @@ export default function Planning() {
   };
 
   const handleSelectEvent = (id) => {
-    setSelectedEventId(id);
+    onSelectEvent?.(id);
     setActiveRoom('Tout');
   };
 

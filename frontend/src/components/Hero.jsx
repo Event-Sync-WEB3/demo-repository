@@ -1,48 +1,19 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getEvents, getSessions, getSpeakers } from '@/lib/api';
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
-export default function Hero() {
-  const [event, setEvent] = useState(null);
-  const [stats, setStats] = useState({ sessions: null, speakers: null, rooms: null });
-
-  useEffect(() => {
-    async function load() {
-      try {
-        const eventsData = await getEvents();
-        const events = Array.isArray(eventsData) ? eventsData : (eventsData.data || []);
-        if (!events.length) return;
-        const ev = events[0];
-        setEvent(ev);
-
-        const [sessionsRaw, speakersRaw] = await Promise.all([
-          getSessions(ev.id),
-          getSpeakers(ev.id),
-        ]);
-        const sessions = Array.isArray(sessionsRaw) ? sessionsRaw : (sessionsRaw.data || []);
-        const speakers = Array.isArray(speakersRaw) ? speakersRaw : (speakersRaw.data || []);
-        const uniqueRooms = new Set(sessions.filter((s) => s.room).map((s) => s.room.id));
-        setStats({ sessions: sessions.length, speakers: speakers.length, rooms: uniqueRooms.size });
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    load();
-  }, []);
-
+export default function Hero({ event, stats = {} }) {
   const isLive = event ? (() => {
     const now = new Date();
     return now >= new Date(event.startsAt) && now <= new Date(event.endsAt);
   })() : false;
 
-  const titleWords = (event?.title || 'EventSync Conference').split(' ');
+  const titleWords = (event?.title || 'EventSync').split(' ');
   const titleStart = titleWords.slice(0, -1).join(' ');
-  const titleEnd = titleWords.slice(-1)[0];
+  const titleEnd   = titleWords.slice(-1)[0];
 
   return (
     <section className="relative overflow-hidden bg-white dark:bg-[#09090b] border-b border-zinc-100 dark:border-zinc-900">
@@ -52,7 +23,6 @@ export default function Hero() {
         <div className="absolute -top-48 -left-24 w-[650px] h-[550px] bg-[#1D9E75] rounded-full blur-[160px] opacity-[0.07] dark:opacity-[0.14]" />
         <div className="absolute -top-16 right-0 w-[550px] h-[450px] bg-[#7c6ff7] rounded-full blur-[140px] opacity-[0.07] dark:opacity-[0.14]" />
         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-gradient-to-r from-[#1D9E75] to-[#7c6ff7] blur-[100px] opacity-[0.04] dark:opacity-[0.06]" />
-        {/* Dot grid */}
         <div className="absolute inset-0 opacity-[0.025] dark:opacity-[0.045]"
           style={{ backgroundImage: 'radial-gradient(#71717a 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
       </div>
