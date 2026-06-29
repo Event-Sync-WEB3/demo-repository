@@ -27,7 +27,13 @@ export default function QAPage() {
         const eventsData = await getEvents();
         const events = eventsData.data || eventsData;
         if (!events.length) return;
-        const sessionsData = await getSessions(events[0].id);
+        const now = new Date();
+        const best =
+          events.find(e => new Date(e.startsAt) <= now && new Date(e.endsAt) >= now) ||
+          events.find(e => new Date(e.startsAt) > now) ||
+          events[events.length - 1] ||
+          events[0];
+        const sessionsData = await getSessions(best.id);
         const sess = sessionsData.data || sessionsData;
         setSessions(Array.isArray(sess) ? sess : []);
         if (sess.length) setSelectedSession(sess[0]);

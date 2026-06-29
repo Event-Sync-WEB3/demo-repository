@@ -27,6 +27,30 @@ const EVENT_INCLUDE = {
   },
 };
 
+async function cascadeDeleteEvent(id, tx) {
+  // 1. Sessions → questions + sessionSpeakers
+  const sessions = await tx.session.findMany({ where: { eventId: id }, select: { id: true } });
+  const sessionIds = sessions.map((s) => s.id);
+  if (sessionIds.length) {
+    await tx.question.deleteMany({ where: { sessionId: { in: sessionIds } } });
+    await tx.sessionSpeaker.deleteMany({ where: { sessionId: { in: sessionIds } } });
+    await tx.session.deleteMany({ where: { eventId: id } });
+  }
+
+  // 2. Speakers → speakerLinks + sessionSpeakers restants
+  const spks = await tx.speaker.findMany({ where: { eventId: id }, select: { id: true } });
+  const speakerIds = spks.map((s) => s.id);
+  if (speakerIds.length) {
+    await tx.sessionSpeaker.deleteMany({ where: { speakerId: { in: speakerIds } } });
+    await tx.speakerLink.deleteMany({ where: { speakerId: { in: speakerIds } } });
+    await tx.speaker.deleteMany({ where: { eventId: id } });
+  }
+
+  // 3. Rooms puis event
+  await tx.room.deleteMany({ where: { eventId: id } });
+  await tx.event.delete({ where: { id } });
+}
+
 function slugify(title) {
   return title
     .toLowerCase()
@@ -192,7 +216,7 @@ export async function deleteEvent(req, res) {
       return res.status(403).json({ error: 'Accès interdit' });
     }
 
-    await prisma.event.delete({ where: { id: existing.id } });
+    await prisma.$transaction((tx) => cascadeDeleteEvent(existing.id, tx));
     res.status(204).send();
   } catch (err) {
     console.error('[deleteEvent]', err);
@@ -221,17 +245,23 @@ export async function updateEventById(req, res) {
     const existing = await prisma.event.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Événement introuvable' });
 
-    const { title, description, location, startsAt, endsAt } = req.body;
+    const { title, description, location, startsAt, endsAt, slug } = req.body;
     const data = {};
 
     if (title !== undefined) {
       data.title = title;
-      if (title !== existing.title) {
-        data.slug = await uniqueSlug(slugify(title), existing.id);
-      }
     }
     if (description !== undefined) data.description = description;
     if (location    !== undefined) data.location    = location;
+
+    // Slug : priorité au slug explicite, sinon auto-génération depuis le titre
+    if (slug !== undefined && slug !== existing.slug) {
+      const conflict = await prisma.event.findUnique({ where: { slug } });
+      if (conflict) return res.status(409).json({ error: 'Ce slug est déjà utilisé' });
+      data.slug = slug;
+    } else if (title !== undefined && title !== existing.title) {
+      data.slug = await uniqueSlug(slugify(title), existing.id);
+    }
 
     const start = startsAt ? new Date(startsAt) : existing.startsAt;
     const end   = endsAt   ? new Date(endsAt)   : existing.endsAt;
@@ -260,7 +290,7 @@ export async function deleteEventById(req, res) {
     const existing = await prisma.event.findUnique({ where: { id: req.params.id } });
     if (!existing) return res.status(404).json({ error: 'Événement introuvable' });
 
-    await prisma.event.delete({ where: { id: req.params.id } });
+    await prisma.$transaction((tx) => cascadeDeleteEvent(req.params.id, tx));
     res.status(204).send();
   } catch (err) {
     console.error('[deleteEventById]', err);

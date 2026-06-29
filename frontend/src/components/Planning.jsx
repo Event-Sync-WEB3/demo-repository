@@ -58,6 +58,8 @@ function SpeakerStack({ speakers }) {
 
 export default function Planning() {
   const router = useRouter();
+  const [allEvents, setAllEvents] = useState([]);
+  const [selectedEventId, setSelectedEventId] = useState(null);
   const [sessionsByRoom, setSessionsByRoom] = useState({});
   const [rooms, setRooms] = useState(['Tout']);
   const [activeRoom, setActiveRoom] = useState('Tout');
@@ -67,14 +69,32 @@ export default function Planning() {
 
   useEffect(() => { setFavorites(getFavorites()); }, []);
 
+  // Charge les événements une seule fois
   useEffect(() => {
+    getEvents()
+      .then((data) => {
+        const events = Array.isArray(data) ? data : (data.data || []);
+        setAllEvents(events);
+        if (!events.length) return;
+        // Priorité : event en cours → prochain à venir → plus récent passé
+        const now = new Date();
+        const best =
+          events.find(e => new Date(e.startsAt) <= now && new Date(e.endsAt) >= now) ||
+          events.find(e => new Date(e.startsAt) > now) ||
+          events[events.length - 1] ||
+          events[0];
+        setSelectedEventId(best.id);
+      })
+      .catch(console.error);
+  }, []);
+
+  // Recharge les sessions à chaque changement d'événement sélectionné
+  useEffect(() => {
+    if (!selectedEventId) return;
+    setLoading(true);
     async function load() {
       try {
-        const eventsData = await getEvents();
-        const events = Array.isArray(eventsData) ? eventsData : (eventsData.data || []);
-        if (!events.length) { setLoading(false); return; }
-
-        const sessionsRaw = await getSessions(events[0].id);
+        const sessionsRaw = await getSessions(selectedEventId);
         const allSessions = Array.isArray(sessionsRaw) ? sessionsRaw : (sessionsRaw.data || []);
 
         const byRoom = {};
@@ -101,7 +121,7 @@ export default function Planning() {
       }
     }
     load();
-  }, []);
+  }, [selectedEventId]);
 
   const handleFavorite = (e, sessionId) => {
     e.stopPropagation();
@@ -109,25 +129,58 @@ export default function Planning() {
     setFavorites(updated);
   };
 
+  const handleSelectEvent = (id) => {
+    setSelectedEventId(id);
+    setActiveRoom('Tout');
+  };
+
   const visibleRooms = activeRoom === 'Tout'
     ? Object.keys(sessionsByRoom).sort()
     : [activeRoom];
+
+  const selectedEvent = allEvents.find(e => e.id === selectedEventId);
 
   return (
     <section id="planning" className="bg-zinc-100 dark:bg-[#09090b] py-12">
       <div className="max-w-7xl mx-auto px-6">
 
+        {/* Sélecteur d'événement (si plusieurs) */}
+        {allEvents.length > 1 && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {allEvents.map((ev) => {
+              const now = new Date();
+              const isActive = new Date(ev.startsAt) <= now && new Date(ev.endsAt) >= now;
+              return (
+                <button
+                  key={ev.id}
+                  onClick={() => handleSelectEvent(ev.id)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-xl border text-sm font-semibold transition-all duration-150 ${
+                    selectedEventId === ev.id
+                      ? 'bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 border-zinc-900 dark:border-white shadow-sm'
+                      : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-600'
+                  }`}
+                >
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0" />}
+                  {ev.title}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {/* En-tête */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
             <p className="text-xs font-medium text-[#1D9E75] dark:text-[#7c6ff7] uppercase tracking-widest mb-1.5">Programme</p>
-            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Planning multi-track</h2>
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">
+              {selectedEvent?.title || 'Planning multi-track'}
+            </h2>
             <p className="text-sm text-zinc-400 dark:text-zinc-500 mt-1">
               {timeSlots.length} créneau{timeSlots.length > 1 ? 'x' : ''} · {Object.keys(sessionsByRoom).length} salle{Object.keys(sessionsByRoom).length > 1 ? 's' : ''}
             </p>
           </div>
 
-          {/* Filtres */}
+          {/* Filtres salles */}
           <div className="flex flex-wrap gap-1.5">
             {rooms.map((r) => (
               <button

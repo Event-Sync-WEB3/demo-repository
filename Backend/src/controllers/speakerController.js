@@ -2,6 +2,9 @@ import prisma from '../config/prisma.js';
 
 export const getAllSpeakers = async (req, res) => {
   const { eventId } = req.query;
+  const page  = Math.max(1, parseInt(req.query.page)  || 1);
+  const limit = Math.min(200, parseInt(req.query.limit) || 50);
+  const skip  = (page - 1) * limit;
   try {
     const where = eventId ? { eventId } : undefined;
 
@@ -14,6 +17,8 @@ export const getAllSpeakers = async (req, res) => {
           _count: { select: { sessions: true } },
         },
         orderBy: { fullName: 'asc' },
+        skip,
+        take: limit,
       }),
     ]);
 

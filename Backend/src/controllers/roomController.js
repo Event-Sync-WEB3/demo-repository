@@ -4,6 +4,9 @@ import { AppError } from '../middleware/errorHandler.js';
 export const getRooms = async (req, res, next) => {
   try {
     const { eventId } = req.query;
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(200, parseInt(req.query.limit) || 50);
+    const skip  = (page - 1) * limit;
     const where = eventId ? { eventId } : {};
 
     const [total, rooms] = await Promise.all([
@@ -11,6 +14,8 @@ export const getRooms = async (req, res, next) => {
       prisma.room.findMany({
         where,
         orderBy: { name: 'asc' },
+        skip,
+        take: limit,
       }),
     ]);
 
