@@ -82,7 +82,8 @@ export async function getSessions(eventId) {
 export async function getQuestions(sessionId) {
   const res = await fetch(`${API_URL}/api/sessions/${sessionId}/questions`);
   if (!res.ok) throw new Error('Erreur lors de la récupération des questions');
-  return res.json();
+  const data = await res.json();
+  return data.data || data;
 }
 
 export async function createQuestion(sessionId, { content, authorName }) {

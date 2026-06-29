@@ -9,7 +9,10 @@ export const getAllSpeakers = async (req, res) => {
       prisma.speaker.count({ where }),
       prisma.speaker.findMany({
         where,
-        include: { links: { orderBy: { sortOrder: 'asc' } } },
+        include: {
+          links: { orderBy: { sortOrder: 'asc' } },
+          _count: { select: { sessions: true } },
+        },
         orderBy: { fullName: 'asc' },
       }),
     ]);

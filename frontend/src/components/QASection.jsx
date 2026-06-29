@@ -53,22 +53,20 @@ export default function QASection({ session }) {
 
   const live = isLive();
 
+  if (!live) return null;
+
   return (
     <div className="bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-2xl p-5 mb-4">
-      
+
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-medium text-[#1a1c28] dark:text-[#f2f2f8]">
           {session.title}
         </h3>
-        {live ? (
-          <div className="flex items-center gap-1.5 text-[11px] text-[#D85A30] dark:text-[#f07060]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D85A30] dark:bg-[#f07060] animate-pulse"></span>
-            Session live
-          </div>
-        ) : (
-          <div className="text-[11px] text-[#6870a0]">Session terminée</div>
-        )}
+        <div className="flex items-center gap-1.5 text-[11px] text-[#D85A30] dark:text-[#f07060]">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#D85A30] dark:bg-[#f07060] animate-pulse"></span>
+          Session live
+        </div>
       </div>
 
       {/* Form — visible uniquement si live */}

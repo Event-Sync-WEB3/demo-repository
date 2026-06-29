@@ -27,14 +27,14 @@ export default function SpeakersList() {
         {speakers.map((s, i) => (
           <Link href={`/speakers/${s.slug}`} key={s.id}>
             <div className="bg-white dark:bg-[#181820] border border-black/10 dark:border-white/10 rounded-xl p-3.5 flex gap-3 cursor-pointer hover:border-[#7c6ff7] hover:-translate-y-px transition-all">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium flex-shrink-0 ${colors[i % colors.length]}`}>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-medium shrink-0 ${colors[i % colors.length]}`}>
                 {s.fullName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()}
               </div>
               <div>
                 <div className="text-sm font-medium text-[#1a1c28] dark:text-[#f2f2f8] mb-0.5">{s.fullName}</div>
                 <div className="text-[11px] text-[#6870a0] mb-1.5">{s.bio || 'Intervenant EventSync'}</div>
                 <div className="text-[11px] text-[#1D9E75] dark:text-[#5bc8a8] flex items-center gap-1">
-                  📅 {s.sessions?.length || 0} sessions
+                  📅 {s._count?.sessions ?? 0} sessions
                 </div>
               </div>
             </div>

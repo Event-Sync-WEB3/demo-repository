@@ -8,6 +8,7 @@ import eventsRoutes from "./routes/eventRoutes.js";
 import sessionRoutes from "./routes/sessionRoutes.js";
 import questionsRouter from "./routes/questions.js";
 import roomRoutes from "./routes/roomRoutes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use("/api/events", eventsRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/sessions/:sessionId/questions", questionsRouter);
 app.use("/api/rooms", roomRoutes);
+
+app.use(errorHandler);
 
 export default app;
 export { prisma };

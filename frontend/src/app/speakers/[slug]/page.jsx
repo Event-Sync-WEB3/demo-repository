@@ -58,9 +58,17 @@ export default function SpeakerPage() {
             Profil intervenant
           </div>
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-[#E1F5EE] text-[#085041] flex items-center justify-center text-base font-medium flex-shrink-0">
-              {initials}
-            </div>
+            {speaker.photoUrl ? (
+              <img
+                src={speaker.photoUrl}
+                alt={speaker.fullName}
+                className="w-12 h-12 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-[#E1F5EE] text-[#085041] flex items-center justify-center text-base font-medium shrink-0">
+                {initials}
+              </div>
+            )}
             <div>
               <div className="text-base font-medium text-[#1a1c28] dark:text-[#f2f2f8]">
                 {speaker.fullName}
@@ -122,12 +130,14 @@ export default function SpeakerPage() {
         </div>
       </div>
 
-      {/* Q&A for each session */}
-      {sessions.map((ss) =>
-        ss.session ? (
-          <QASection key={ss.sessionId} session={ss.session} />
-        ) : null
-      )}
+      {/* Q&A uniquement pour les sessions en cours (live) */}
+      {sessions.map((ss) => {
+        if (!ss.session) return null;
+        const now = new Date();
+        const isLive =
+          now >= new Date(ss.session.startsAt) && now <= new Date(ss.session.endsAt);
+        return isLive ? <QASection key={ss.sessionId} session={ss.session} /> : null;
+      })}
 
     </div>
   );
