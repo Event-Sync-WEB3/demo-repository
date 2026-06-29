@@ -6,22 +6,17 @@ import { getSpeakers } from '@/lib/api';
 
 const AVATAR_COLORS = [
   { bg: 'bg-emerald-100 dark:bg-emerald-950', text: 'text-emerald-700 dark:text-emerald-400' },
-  { bg: 'bg-violet-100 dark:bg-violet-950', text: 'text-violet-700 dark:text-violet-400' },
-  { bg: 'bg-amber-100 dark:bg-amber-950', text: 'text-amber-700 dark:text-amber-400' },
-  { bg: 'bg-sky-100 dark:bg-sky-950', text: 'text-sky-700 dark:text-sky-400' },
+  { bg: 'bg-violet-100 dark:bg-violet-950',   text: 'text-violet-700 dark:text-violet-400' },
+  { bg: 'bg-amber-100 dark:bg-amber-950',     text: 'text-amber-700 dark:text-amber-400' },
+  { bg: 'bg-sky-100 dark:bg-sky-950',         text: 'text-sky-700 dark:text-sky-400' },
 ];
+
+const PLATFORM_ICONS = {
+  twitter: 'X', linkedin: 'in', github: 'GH', youtube: 'YT', website: '↗', other: '↗',
+};
 
 const initials = (name) =>
   name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-
-const PLATFORM_ICONS = {
-  twitter: 'X',
-  linkedin: 'in',
-  github: 'GH',
-  youtube: 'YT',
-  website: '↗',
-  other: '↗',
-};
 
 export default function SpeakersPage() {
   const [speakers, setSpeakers] = useState([]);
@@ -36,24 +31,29 @@ export default function SpeakersPage() {
 
   return (
     <div className="min-h-screen bg-zinc-100 dark:bg-[#09090b]">
-      <div className="max-w-7xl mx-auto px-6 py-10">
 
-        {/* En-tête */}
-        <div className="mb-8">
-          <p className="text-xs font-medium text-[#1D9E75] dark:text-[#7c6ff7] uppercase tracking-widest mb-2">Intervenants</p>
-          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
-            Les speakers de l&apos;événement
+      {/* Hero de page */}
+      <div className="relative overflow-hidden bg-white dark:bg-zinc-950 border-b border-zinc-100 dark:border-zinc-900">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 left-0 w-96 h-96 bg-[#7c6ff7] rounded-full blur-[120px] opacity-[0.06] dark:opacity-[0.1]" />
+          <div className="absolute top-0 right-0 w-72 h-72 bg-[#1D9E75] rounded-full blur-[100px] opacity-[0.06] dark:opacity-[0.1]" />
+        </div>
+        <div className="relative max-w-7xl mx-auto px-6 py-14">
+          <p className="text-xs font-medium text-[#1D9E75] dark:text-[#7c6ff7] uppercase tracking-widest mb-3">Intervenants</p>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-white tracking-tight mb-3">
+            Les <span className="gradient-text">speakers</span> de l&apos;événement
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm">
-            Experts et professionnels qui animent les sessions
+          <p className="text-zinc-500 dark:text-zinc-400 text-sm">
+            {loading ? '—' : `${speakers.length} expert${speakers.length > 1 ? 's' : ''} et professionnel${speakers.length > 1 ? 's' : ''} qui animent les sessions`}
           </p>
         </div>
+      </div>
 
-        {/* Grille */}
+      <div className="max-w-7xl mx-auto px-6 py-10">
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white dark:bg-zinc-900 rounded-2xl h-40 animate-pulse" />
+              <div key={i} className="h-36 rounded-2xl skeleton" />
             ))}
           </div>
         ) : speakers.length === 0 ? (
@@ -63,43 +63,40 @@ export default function SpeakersPage() {
             {speakers.map((s, i) => {
               const color = AVATAR_COLORS[i % AVATAR_COLORS.length];
               return (
-                <Link href={`/speakers/${s.slug}`} key={s.id}>
-                  <div className="group flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-[#1D9E75]/40 dark:hover:border-[#7c6ff7]/40 hover:shadow-lg hover:shadow-black/5 hover:-translate-y-0.5 transition-all duration-150 cursor-pointer h-full">
+                <Link href={`/speakers/${s.slug}`} key={s.id} className="group">
+                  <div className="relative flex gap-4 p-5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl hover:border-transparent hover:shadow-xl hover:shadow-black/8 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer h-full overflow-hidden">
+
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+                      style={{ background: 'linear-gradient(160deg, rgba(29,158,117,0.05) 0%, rgba(124,111,247,0.05) 100%)' }}
+                    />
 
                     {/* Avatar */}
                     {s.photoUrl ? (
-                      <img
-                        src={s.photoUrl}
-                        alt={s.fullName}
-                        className="w-14 h-14 rounded-2xl object-cover shrink-0 ring-1 ring-black/5"
-                      />
+                      <img src={s.photoUrl} alt={s.fullName} className="relative w-14 h-14 rounded-2xl object-cover shrink-0 ring-1 ring-black/5" />
                     ) : (
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-base font-bold shrink-0 ${color.bg} ${color.text}`}>
+                      <div className={`relative w-14 h-14 rounded-2xl flex items-center justify-center text-base font-bold shrink-0 ${color.bg} ${color.text}`}>
                         {initials(s.fullName)}
                       </div>
                     )}
 
                     {/* Info */}
-                    <div className="flex-1 min-w-0">
+                    <div className="relative flex-1 min-w-0">
                       <p className="text-sm font-semibold text-zinc-900 dark:text-white group-hover:text-[#1D9E75] dark:group-hover:text-[#7c6ff7] transition-colors mb-0.5">
                         {s.fullName}
                       </p>
                       {s.bio && (
-                        <p className="text-xs text-zinc-400 dark:text-zinc-500 line-clamp-2 mb-2">
+                        <p className="text-xs text-zinc-400 dark:text-zinc-500 line-clamp-2 mb-3 leading-relaxed">
                           {s.bio}
                         </p>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#1D9E75] dark:text-[#7c6ff7]">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#1D9E75] dark:text-[#7c6ff7]">
                           {s._count?.sessions ?? 0} session{(s._count?.sessions ?? 0) > 1 ? 's' : ''}
                         </span>
                         {s.links?.length > 0 && (
                           <div className="flex gap-1">
                             {s.links.slice(0, 3).map((link) => (
-                              <span
-                                key={link.id}
-                                className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400"
-                              >
+                              <span key={link.id} className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500">
                                 {PLATFORM_ICONS[link.platform] ?? '↗'}
                               </span>
                             ))}
@@ -113,7 +110,6 @@ export default function SpeakersPage() {
             })}
           </div>
         )}
-
       </div>
     </div>
   );
