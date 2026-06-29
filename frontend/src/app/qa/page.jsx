@@ -27,16 +27,29 @@ export default function QAPage() {
         const eventsData = await getEvents();
         const events = eventsData.data || eventsData;
         if (!events.length) return;
+
+        // Charge toutes les sessions de tous les événements en parallèle
         const now = new Date();
-        const best =
-          events.find(e => new Date(e.startsAt) <= now && new Date(e.endsAt) >= now) ||
-          events.find(e => new Date(e.startsAt) > now) ||
-          events[events.length - 1] ||
-          events[0];
-        const sessionsData = await getSessions(best.id);
-        const sess = sessionsData.data || sessionsData;
-        setSessions(Array.isArray(sess) ? sess : []);
-        if (sess.length) setSelectedSession(sess[0]);
+        const allSessionsArrays = await Promise.all(
+          events.map(async (e) => {
+            const data = await getSessions(e.id);
+            return Array.isArray(data) ? data : (data.data || []);
+          })
+        );
+
+        // Fusionne toutes les sessions, triées par startsAt
+        const allSessions = allSessionsArrays
+          .flat()
+          .sort((a, b) => new Date(a.startsAt) - new Date(b.startsAt));
+
+        setSessions(allSessions);
+
+        // Sélectionne d'abord une session LIVE, sinon la première à venir, sinon la première
+        const liveSession = allSessions.find(
+          s => now >= new Date(s.startsAt) && now <= new Date(s.endsAt)
+        );
+        const upcomingSession = allSessions.find(s => new Date(s.startsAt) > now);
+        setSelectedSession(liveSession || upcomingSession || allSessions[0] || null);
       } catch (err) {
         console.error(err);
       } finally {
