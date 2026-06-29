@@ -10,7 +10,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fr" suppressHydrationWarning>
-      <body className="bg-zinc-100 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 transition-colors duration-300 min-h-screen">
+      <body className="bg-[#e2e2e6] dark:bg-[#09090b] text-zinc-900 dark:text-zinc-50 transition-colors duration-300 min-h-screen">
         <ThemeProvider>
           <Navbar />
           <main>{children}</main>

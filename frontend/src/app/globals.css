@@ -43,6 +43,16 @@ body {
   background-clip: text;
 }
 
+/* ── Light mode : amélioration du contraste ── */
+html:not(.dark) {
+  /* Décale zinc-400/300 d'un cran vers le bas → texte muted lisible sur blanc */
+  --color-zinc-400: #71717a;   /* valeur zinc-500 */
+  --color-zinc-300: #a1a1aa;   /* valeur zinc-400 */
+  /* Bordures légèrement plus visibles */
+  --color-zinc-200: #cacace;
+  --color-zinc-100: #e2e2e6;
+}
+
 /* ── Shimmer skeleton ── */
 @keyframes shimmer {
   0%   { background-position: -400% 0; }
@@ -50,7 +60,7 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #f4f4f5 25%, #e4e4e7 50%, #f4f4f5 75%);
+  background: linear-gradient(90deg, #e2e2e6 25%, #d1d1d5 50%, #e2e2e6 75%);
   background-size: 400% 100%;
   animation: shimmer 1.8s ease-in-out infinite;
 }
