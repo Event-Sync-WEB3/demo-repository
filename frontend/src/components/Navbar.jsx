@@ -88,6 +88,18 @@ export default function Navbar() {
               )}
             </button>
 
+            {/* Bouton Admin */}
+            <a
+              href="/admin"
+              title="Espace admin"
+              className="w-9 h-9 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-400 dark:text-zinc-500 hover:text-[#7c6ff7] hover:border-[#7c6ff7]/40 hover:bg-violet-50 dark:hover:bg-violet-950/30 transition-all duration-150"
+            >
+              <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            </a>
+
             {/* Hamburger mobile */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}

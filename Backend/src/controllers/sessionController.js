@@ -5,6 +5,10 @@ import { sessionSelect, formatSession } from '../utils/sessionHelpers.js';
 export const getSessions = async (req, res, next) => {
   try {
     const { eventId, roomId } = req.query;
+    const page  = Math.max(1, parseInt(req.query.page)  || 1);
+    const limit = Math.min(200, parseInt(req.query.limit) || 50);
+    const skip  = (page - 1) * limit;
+
     const where = {};
     if (eventId) where.eventId = eventId;
     if (roomId)  where.roomId  = roomId;
@@ -14,6 +18,8 @@ export const getSessions = async (req, res, next) => {
       prisma.session.findMany({
         where,
         orderBy: { startsAt: 'asc' },
+        skip,
+        take: limit,
         select: sessionSelect,
       }),
     ]);
