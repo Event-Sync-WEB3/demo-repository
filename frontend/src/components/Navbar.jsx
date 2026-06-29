@@ -37,7 +37,7 @@ export default function Navbar() {
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#1D9E75] to-[#7c6ff7] flex items-center justify-center shadow-md shadow-[#1D9E75]/20 group-hover:scale-105 transition-transform duration-150">
+            <div className="w-8 h-8 rounded-xl bg-linear-to-br from-[#1D9E75] to-[#7c6ff7] flex items-center justify-center shadow-md shadow-[#1D9E75]/20 group-hover:scale-105 transition-transform duration-150">
               <svg width="15" height="15" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="18" rx="2.5" />
                 <line x1="16" y1="2" x2="16" y2="6" />
@@ -106,10 +106,10 @@ export default function Navbar() {
               aria-label="Menu"
               className="md:hidden w-9 h-9 rounded-xl border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-all"
             >
-              <div className="w-[15px] flex flex-col gap-[4.5px]">
-                <span className={`block h-[1.5px] w-full bg-current rounded-full origin-center transition-all duration-200 ${mobileOpen ? 'rotate-45 translate-y-[6px]' : ''}`} />
+              <div className="w-3.75 flex flex-col gap-[4.5px]">
+                <span className={`block h-[1.5px] w-full bg-current rounded-full origin-center transition-all duration-200 ${mobileOpen ? 'rotate-45 translate-y-1.5' : ''}`} />
                 <span className={`block h-[1.5px] w-full bg-current rounded-full transition-all duration-200 ${mobileOpen ? 'opacity-0 -translate-x-2' : ''}`} />
-                <span className={`block h-[1.5px] w-full bg-current rounded-full origin-center transition-all duration-200 ${mobileOpen ? '-rotate-45 -translate-y-[6px]' : ''}`} />
+                <span className={`block h-[1.5px] w-full bg-current rounded-full origin-center transition-all duration-200 ${mobileOpen ? '-rotate-45 -translate-y-1.5' : ''}`} />
               </div>
             </button>
           </div>

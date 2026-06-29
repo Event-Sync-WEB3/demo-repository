@@ -211,7 +211,7 @@ export default function Planning({ allEvents = [], selectedEventId, cachedSessio
               <div key={room} className="flex flex-col gap-3">
                 {/* Header salle */}
                 <div className="flex items-center gap-2 px-3 py-2 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl h-9">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-br from-[#1D9E75] to-[#7c6ff7] shrink-0" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-linear-to-br from-[#1D9E75] to-[#7c6ff7] shrink-0" />
                   <span className="text-[11px] font-bold text-zinc-600 dark:text-zinc-300 uppercase tracking-wider truncate">
                     {room}
                   </span>

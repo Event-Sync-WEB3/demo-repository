@@ -20,9 +20,9 @@ export default function Hero({ event, stats = {} }) {
 
       {/* Gradient blobs */}
       <div className="absolute inset-0 pointer-events-none select-none">
-        <div className="absolute -top-48 -left-24 w-[650px] h-[550px] bg-[#1D9E75] rounded-full blur-[160px] opacity-[0.07] dark:opacity-[0.14]" />
-        <div className="absolute -top-16 right-0 w-[550px] h-[450px] bg-[#7c6ff7] rounded-full blur-[140px] opacity-[0.07] dark:opacity-[0.14]" />
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[200px] bg-gradient-to-r from-[#1D9E75] to-[#7c6ff7] blur-[100px] opacity-[0.04] dark:opacity-[0.06]" />
+        <div className="absolute -top-48 -left-24 w-162.5 h-137.5 bg-[#1D9E75] rounded-full blur-[160px] opacity-[0.07] dark:opacity-[0.14]" />
+        <div className="absolute -top-16 right-0 w-137.5 h-112.5 bg-[#7c6ff7] rounded-full blur-[140px] opacity-[0.07] dark:opacity-[0.14]" />
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-200 h-50 bg-linear-to-r from-[#1D9E75] to-[#7c6ff7] blur-[100px] opacity-[0.04] dark:opacity-[0.06]" />
         <div className="absolute inset-0 opacity-[0.025] dark:opacity-[0.045]"
           style={{ backgroundImage: 'radial-gradient(#71717a 1px, transparent 1px)', backgroundSize: '28px 28px' }} />
       </div>
@@ -135,7 +135,7 @@ export default function Hero({ event, stats = {} }) {
             ].map((s) => (
               <div
                 key={s.label}
-                className="flex-1 lg:flex-none flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl lg:min-w-[210px] hover:border-zinc-200 dark:hover:border-zinc-700 hover:shadow-sm transition-all duration-150"
+                className="flex-1 lg:flex-none flex items-center gap-4 px-5 py-4 bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 rounded-2xl lg:min-w-52.5 hover:border-zinc-200 dark:hover:border-zinc-700 hover:shadow-sm transition-all duration-150"
               >
                 <div className={`w-10 h-10 rounded-xl ${s.bg} ${s.color} flex items-center justify-center shrink-0`}>
                   {s.icon}
